@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMZ Studios | Bot Dashboard</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <link rel="stylesheet" href="./src/styles/style.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .font-mono { font-family: 'JetBrains+Mono', monospace; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="site-principal" class="min-h-screen flex flex-col items-center justify-center p-6 fade-in">
+        <h1 class="text-4xl font-black tracking-tighter mb-4 uppercase">AMZ STUDIOS</h1>
+        <p class="text-neutral-500 mb-8 font-mono text-[10px] uppercase tracking-[0.4em]">Development & Automation</p>
+        <button onclick="fazerLoginDiscord()" class="border border-white/20 hover:border-white px-10 py-4 text-[10px] uppercase font-bold tracking-widest transition-all">
+            Entrar com Discord
+        </button>
+    </div>
+
+    <div id="painel-loritta" class="hidden min-h-screen bg-[#050505] flex transition-all duration-500">
+        
+        <aside class="w-64 bg-black border-r border-white/5 flex flex-col pt-24 px-4 sticky top-0 h-screen">
+            <div class="mb-10 px-4">
+                <h2 class="text-[10px] uppercase tracking-[0.3em] text-neutral-500 mb-4 font-bold">Menu Principal</h2>
+                <nav class="space-y-2">
+                    <button onclick="voltarAoInicioBot()" class="w-full flex items-center gap-3 text-white/60 hover:text-white hover:bg-white/5 p-3 rounded transition text-[10px] uppercase font-bold tracking-widest">
+                        <i class="ph ph-house"></i> Visão Geral
+                    </button>
+                    <button onclick="abrirListaServidores()" class="w-full flex items-center gap-3 text-white/60 hover:text-white hover:bg-white/5 p-3 rounded transition text-[10px] uppercase font-bold tracking-widest">
+                        <i class="ph ph-squares-four"></i> Servidores
+                    </button>
+                    <button onclick="voltarAoInicio()" class="w-full flex items-center gap-3 text-red-900/60 hover:text-red-500 hover:bg-red-500/5 p-3 rounded transition text-[10px] uppercase font-bold tracking-widest">
+                        <i class="ph ph-arrow-left"></i> Sair
+                    </button>
+                </nav>
+            </div>
+
+            <div class="mt-auto mb-8 px-4 border-t border-white/5 pt-6">
+                <div class="flex items-center gap-3 opacity-50">
+                    <div class="w-8 h-8 rounded-sm bg-white/10 flex items-center justify-center text-[9px] font-black text-white">AMZ</div>
+                    <div class="text-[9px] uppercase tracking-tighter">
+                        <p class="font-bold text-white underline">Douglas Muniz</p>
+                        <p class="text-neutral-500">Developer</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-12 overflow-y-auto pt-24">
+            
+            <div id="bot-landing" class="max-w-4xl fade-in">
+                <h1 class="text-6xl font-black tracking-tighter mb-4 uppercase">CELESTIAL <span class="text-neutral-800">BOT</span></h1>
+                <p class="text-neutral-400 mb-10 max-w-xl font-mono text-xs uppercase tracking-widest">
+                    Gerenciamento avançado de servidores Discord e sincronização com Cluster MongoDB.
+                </p>
+                <div class="flex gap-4">
+                    <button onclick="abrirListaServidores()" class="bg-white text-black px-8 py-4 font-bold uppercase text-[10px] tracking-widest hover:bg-neutral-200 transition">
+                        Gerenciar Servidores
+                    </button>
+                </div>
+            </div>
+
+            <div id="lista-servidores" class="hidden fade-in">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-2xl font-black uppercase tracking-tighter italic">// SERVIDORES_VINCULADOS</h2>
+                    <span class="text-[9px] font-mono text-white/20 uppercase tracking-[0.3em]">Status: Conectado</span>
+                </div>
+                <div id="container-servidores" class="grid md:grid-cols-2 gap-4">
+                    </div>
+            </div>
+
+            <div id="config-limpeza" class="hidden max-w-xl fade-in">
+                <div class="border border-white/10 p-10 bg-black shadow-2xl">
+                    <div class="flex items-center gap-4 mb-10">
+                        <h1 class="text-xl font-black tracking-widest text-white uppercase italic">Configuração</h1>
+                    </div>
+                    
+                    <p class="font-mono text-[9px] uppercase tracking-[0.4em] text-white/30 mb-10">
+                        Configurando Servidor: <span id="nome-servidor-atual" class="text-white font-bold">---</span>
+                    </p>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <label for="canal_id" class="block text-[9px] uppercase tracking-[0.3em] text-neutral-500 mb-3 font-bold">Discord Channel ID</label>
+                            <input type="text" id="canal_id" placeholder="Ex: 1358951916004184212" 
+                                class="w-full bg-[#080808] border border-[#222] p-4 font-mono text-xs text-white focus:border-white outline-none transition placeholder:opacity-20">
+                        </div>
+
+                        <div>
+                            <label for="dias" class="block text-[9px] uppercase tracking-[0.3em] text-neutral-500 mb-3 font-bold">Retention Period</label>
+                            <select id="dias" name="dias" title="Selecione o período de retenção para limpeza automática" 
+                                class="w-full bg-[#080808] border border-[#222] p-4 font-mono text-xs text-white outline-none focus:border-white transition cursor-pointer">
+                                <option value="1">Limpar após 24 Horas (1 dia)</option>
+                                <option value="2">Limpar após 48 Horas (2 dias)</option>
+                                <option value="3">Limpar após 72 Horas (3 dias)</option>
+                                <option value="4">Limpar após 96 Horas (4 dias)</option>
+                                <option value="5">Limpar após 120 Horas (5 dias)</option>
+                            </select>
+                        </div>
+
+                        <button id="btn-sync" onclick="enviarConfiguracao()" class="w-full bg-white text-black py-4 font-black uppercase text-[10px] tracking-[0.2em] hover:bg-neutral-300 transition flex items-center justify-center gap-3">
+                            <i class="ph ph-arrows-clockwise font-bold" id="icon-sync"></i> Sincronizar MongoDB
+                        </button>
+
+                        <div id="status_msg" class="text-[9px] uppercase tracking-widest text-center mt-6 hidden font-black"></div>
+                    </div>
+                </div>
+                
+                <button onclick="abrirListaServidores()" class="mt-6 text-[9px] uppercase tracking-widest text-white/30 hover:text-white transition font-bold flex items-center gap-2">
+                    <i class="ph ph-caret-left"></i> Voltar para a lista
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="./src/scripts/script.js"></script>
+</body>
+</html>
