@@ -1,10 +1,14 @@
-import asyncio
+
 import os
+import sys
+import asyncio
 import threading
 from flask import Flask
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 # 1. Importe o seu bot aqui (ajuste o caminho se necessário)
 # Supondo que seu bot_client está em backend/src/bot/events/
 from src.bot.events.bot_client import bot 
