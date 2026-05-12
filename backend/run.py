@@ -6,67 +6,83 @@ from flask import Flask
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 
-# 1. FORÇANDO O "GPS" DO PYTHON
-# Isso descobre onde o run.py está e diz: "Aqui é o começo de tudo"
+# ==========================================
+# 1. FORÇANDO O CAMINHO (O "ARROMBA-PORTA")
+# ==========================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-if BASE_DIR not in sys.path:
-    sys.path.insert(0, BASE_DIR)
+SRC_DIR = os.path.join(BASE_DIR, 'src')
 
-# 2. IMPORTAÇÃO DIRETA
-# Como o BASE_DIR (pasta backend) está no topo do sistema, 
-# ele VAI achar a pasta 'src' que você me mostrou na foto.
+# Adiciona tanto a pasta 'backend' quanto a 'src' no mapa do Python
+sys.path.insert(0, BASE_DIR)
+sys.path.insert(0, SRC_DIR)
+
+print(f"🔍 DEBUG: Eu estou na pasta: {BASE_DIR}")
+print(f"🔍 DEBUG: Conteúdo da backend: {os.listdir(BASE_DIR)}")
+
+if os.path.exists(SRC_DIR):
+    print(f"🔍 DEBUG: Conteúdo da src: {os.listdir(SRC_DIR)}")
+else:
+    print("❌ ERRO GRAVE: A pasta 'src' não foi encontrada!")
+
+# ==========================================
+# 2. TENTATIVA DE IMPORTAÇÃO INTELIGENTE
+# ==========================================
+bot = None
 try:
+    # Tenta o caminho completo
     from src.bot.events.bot_client import bot
-    print("✅ Módulo do Bot localizado com sucesso!")
-except Exception as e:
-    print(f"❌ ERRO DE IMPORTAÇÃO: {e}")
-    print(f"O que o Python vê nesta pasta: {os.listdir(BASE_DIR)}")
-    sys.exit(1)
+    print("✅ Módulo do Bot localizado via 'src.bot'!")
+except ImportError:
+    try:
+        # Tenta o caminho direto (já que adicionamos a 'src' no sys.path)
+        from bot.events.bot_client import bot
+        print("✅ Módulo do Bot localizado via 'bot' direto!")
+    except ImportError as e:
+        print(f"❌ ERRO FINAL DE IMPORTAÇÃO: {e}")
+        # Se chegar aqui, vamos parar o processo com erro detalhado
+        sys.exit(1)
 
 load_dotenv()
 
-# --- FLASK (O "Coração" para o Render não desligar) ---
+# ==========================================
+# 3. FLASK (PARA O RENDER NÃO DORMIR)
+# ==========================================
 app = Flask(__name__)
 
 @app.route('/')
 def health_check():
-    return "AMZ Studios: Status Online!", 200
+    # Estilo minimalista preto e branco para o criador da AMZ
+    return "<body style='background:#000;color:#fff;font-family:sans-serif;'><h1>AMZ Studios</h1><p>Bot Status: Online</p></body>", 200
 
 def run_flask():
     port = int(os.environ.get("PORT", 8080))
     print(f"🌐 Servidor Web ativo na porta {port}")
     app.run(host='0.0.0.0', port=port)
 
-# --- INICIALIZAÇÃO DOS SERVIÇOS ---
+# ==========================================
+# 4. INICIALIZAÇÃO
+# ==========================================
 async def start_services():
-    print("🚀 Iniciando serviços da AMZ Studios...")
     uri = os.getenv("MONGO_URI")
     token = os.getenv("DISCORD_TOKEN")
     
-    if not uri or not token:
-        print("❌ ERRO: Faltam variáveis MONGO_URI ou DISCORD_TOKEN!")
-        return
-
     try:
-        # Banco de Dados
+        print("🔗 Conectando ao Banco AMZCore...")
         client = AsyncIOMotorClient(uri)
         await client.admin.command('ping')
-        print("✅ BANCO DE DADOS: AMZCore Conectado!")
+        print("✅ BANCO DE DADOS: Conectado!")
         
-        # Bot do Discord
-        print("🤖 DISCORD: Conectando bot...")
+        print("🤖 DISCORD: Ligando...")
         await bot.start(token)
     except Exception as e:
         print(f"❌ FALHA NO START: {e}")
 
 if __name__ == "__main__":
-    # Inicia o Flask (Diz pro Render que o app está vivo)
     t = threading.Thread(target=run_flask)
     t.daemon = True
     t.start()
     
-    # Inicia o Bot
     try:
         asyncio.run(start_services())
     except KeyboardInterrupt:
-        print("Desligando...")
+        pass
