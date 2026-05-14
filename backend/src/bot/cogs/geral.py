@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
-from backend.src.database.manager import db
+# Remova o "backend." do início
+from src.database.manager import db
 
 class Geral(commands.Cog):
     def __init__(self, bot):
