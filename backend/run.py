@@ -6,41 +6,33 @@ from flask import Flask
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 
-# 1. LOCALIZADOR DE ELITE
+# 1. LOCALIZADOR (GPS)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SRC_DIR = os.path.join(BASE_DIR, 'src')
 BOT_DIR = os.path.join(SRC_DIR, 'bot')
 
-# Adicionamos os caminhos ao GPS do Python
 sys.path.insert(0, BASE_DIR)
 sys.path.insert(0, SRC_DIR)
 
-print(f"🔍 [DEBUG AMZ] Pasta Backend: {os.listdir(BASE_DIR)}")
+# LOGS DE DEBUG (Isso vai aparecer no seu painel do Render)
+print(f"🔍 [DEBUG AMZ] Pasta Backend contém: {os.listdir(BASE_DIR)}")
 if os.path.exists(BOT_DIR):
     print(f"🔍 [DEBUG AMZ] O que tem dentro da BOT: {os.listdir(BOT_DIR)}")
 else:
-    print("❌ [DEBUG AMZ] ERRO: A pasta 'bot' não existe em 'src'!")
+    print("❌ [DEBUG AMZ] ERRO: A pasta 'bot' sumiu da 'src'!")
 
 # 2. TENTATIVA DE IMPORTAÇÃO
 try:
-    # Tentando o caminho absoluto
     from src.bot.events.bot_client import bot
-    print("✅ BOT: Módulo localizado e carregado!")
+    print("✅ BOT: Módulo localizado!")
 except Exception as e:
     print(f"❌ ERRO DE IMPORTAÇÃO: {e}")
-    # Se falhar, tentamos o caminho curto (sem o src)
-    try:
-        from bot.events.bot_client import bot
-        print("✅ BOT: Localizado via caminho curto!")
-    except:
-        print("❌ FALHA TOTAL: O arquivo 'bot_client.py' não foi achado no caminho esperado.")
-        sys.exit(1)
+    sys.exit(1)
 
 load_dotenv()
 
-# --- FLASK (ESTILO PRETO E BRANCO AMZ) ---
+# --- FLASK (ESTILO PRETO E BRANCO) ---
 app = Flask(__name__)
-
 @app.route('/')
 def health_check():
     return "<body style='background:#000;color:#fff;'><h1>AMZ STUDIOS</h1><p>Bot: ONLINE</p></body>", 200
@@ -59,7 +51,7 @@ async def start_services():
         print("✅ BANCO: AMZCore Online!")
         await bot.start(token)
     except Exception as e:
-        print(f"❌ ERRO: {e}")
+        print(f"❌ ERRO NO START: {e}")
 
 if __name__ == "__main__":
     threading.Thread(target=run_flask, daemon=True).start()
